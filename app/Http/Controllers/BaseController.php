@@ -2,62 +2,62 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Log;
 
 class BaseController extends Controller
 {
     /**
-     * Trả JSON thành công
+     * Trả về phản hồi thành công
      */
-    public function success($data = [], string $message = 'Thành công', int $code = 200): JsonResponse
+    protected function success($data, $message = 'Thành công', $code = 200)
     {
         return response()->json([
-            'status' => true,
+            'status' => 'success',
             'message' => $message,
             'data' => $data
         ], $code);
     }
 
     /**
-     * Trả JSON thất bại
+     * Trả về phản hồi phân trang
      */
-    public function error(string $message = 'Có lỗi xảy ra', int $code = 400, $data = null): JsonResponse
+    protected function paginated(LengthAwarePaginator $data, $message = 'Thành công', $code = 200)
     {
         return response()->json([
-            'status' => false,
+            'status' => 'success',
             'message' => $message,
-            'errors' => $data
+            'data' => $data->items(),
+            'pagination' => [
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+            ]
         ], $code);
     }
 
     /**
-     * Trả về kết quả phân trang theo chuẩn JSON
+     * Trả về phản hồi lỗi
      */
-    public function paginated(LengthAwarePaginator $paginator, string $message = 'Thành công'): JsonResponse
+    protected function error($message = 'Có lỗi xảy ra', $code = 400)
     {
         return response()->json([
-            'status' => true,
+            'status' => 'error',
             'message' => $message,
-            'data' => $paginator->items(),
-            'pagination' => [
-                'total' => $paginator->total(),
-                'current_page' => $paginator->currentPage(),
-                'per_page' => $paginator->perPage(),
-                'last_page' => $paginator->lastPage()
-            ]
-        ]);
+            'data' => null
+        ], $code);
     }
 
     /**
-     * Ghi log lỗi (nội bộ) và trả thông báo chung
+     * Xử lý ngoại lệ
      */
-    public function exception(\Throwable $e, string $customMessage = 'Đã xảy ra lỗi không mong muốn'): JsonResponse
+    protected function exception(\Throwable $e)
     {
-        Log::error($e);
-
-        return $this->error($customMessage, 500);
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Lỗi hệ thống: ' . $e->getMessage(),
+            'data' => null
+        ], 500);
     }
 }
