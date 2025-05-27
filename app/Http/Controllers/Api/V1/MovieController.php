@@ -3,11 +3,18 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\BaseController;
+use App\Services\MovieService;
 use Illuminate\Http\Request;
-use App\Models\MovieModel;
 
 class MovieController extends BaseController
 {
+    protected $movieService;
+
+    public function __construct(MovieService $movieService)
+    {
+        $this->movieService = $movieService;
+    }
+
     /**
      * Lấy danh sách phim (có phân trang)
      * GET /api/v1/movies
@@ -15,12 +22,7 @@ class MovieController extends BaseController
     public function index()
     {
         try {
-            $movies = MovieModel::with(['category', 'genres', 'slug'])
-                ->published()
-                ->active()
-                ->latest()
-                ->paginate(12);
-
+            $movies = $this->movieService->getAllMovies(12);
             return $this->paginated($movies);
         } catch (\Throwable $e) {
             return $this->exception($e);
@@ -34,18 +36,7 @@ class MovieController extends BaseController
     public function show($slug)
     {
         try {
-            $movie = MovieModel::with(['category', 'genres', 'episodes', 'slug'])
-                ->published()
-                ->active()
-                ->whereHas('slug', function ($query) use ($slug) {
-                    $query->where('slug', $slug);
-                })
-                ->first();
-
-            if (!$movie) {
-                return $this->error('Phim không tồn tại', 404);
-            }
-
+            $movie = $this->movieService->getMovieBySlug($slug);
             return $this->success($movie);
         } catch (\Throwable $e) {
             return $this->exception($e);

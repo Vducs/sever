@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Repositories\Movie\IMovieRepository;
+use App\Repositories\Movie\MovieRepository;
+use App\Services\Movie\MovieService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -11,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(IMovieRepository::class, MovieRepository::class);
     }
 
     /**
