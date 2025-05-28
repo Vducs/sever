@@ -12,4 +12,5 @@ interface IMovieRepository extends IBaseRepository
     public function findBySlug(string $slug);
     public function create(array $data): MovieModel;
     public function update($id, array $data): bool;
+    public function search(string $keyword, array $fields, int $perPage = 15);
 }

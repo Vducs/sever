@@ -57,4 +57,25 @@ abstract class BaseRepository implements IBaseRepository
         }
         return false;
     }
+
+    public function search(string $keyword, array $fields, int $perPage = 15)
+    {
+        if (empty($fields)) {
+            throw new \InvalidArgumentException('Phải cung cấp ít nhất một trường để tìm kiếm');
+        }
+
+        $query = $this->model->newQuery();
+
+        $query->where(function ($q) use ($fields, $keyword) {
+            foreach ($fields as $index => $field) {
+                if ($index === 0) {
+                    $q->where($field, 'LIKE', "%{$keyword}%");
+                } else {
+                    $q->orWhere($field, 'LIKE', "%{$keyword}%");
+                }
+            }
+        });
+
+        return $query->paginate($perPage);
+    }
 }

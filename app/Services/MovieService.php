@@ -135,8 +135,6 @@ class MovieService extends BaseService
         });
     }
 
-
-
     public function deleteMovie(int $id): bool
     {
         return DB::transaction(function () use ($id) {
@@ -155,5 +153,10 @@ class MovieService extends BaseService
             // Xóa phim
             return $this->repository->delete($id);
         });
+    }
+
+    public function searchMovies(string $keyword, int $perPage = 12)
+    {
+        return $this->repository->search($keyword, ['title', 'description'], $perPage);
     }
 }

@@ -105,4 +105,30 @@ class MovieController extends BaseController
             return $this->exception($e);
         }
     }
+
+    /**
+     * Tìm phim
+     * GET /api/v1/movies/search
+     */
+    public function search(Request $request)
+    {
+        try {
+            $query = $request->query('query', '');
+
+            if (empty(trim($query))) {
+                return $this->error('Tham số tìm kiếm không được để trống', 422);
+            }
+
+            $movies = $this->movieService->searchMovies($query, 12);
+
+            // $movies là LengthAwarePaginator, không cần gọi isEmpty() mà gọi total() để kiểm tra
+            if ($movies->total() === 0) {
+                return $this->success([], 'Không tìm thấy phim phù hợp');
+            }
+
+            return $this->paginated($movies);
+        } catch (\Throwable $e) {
+            return $this->exception($e);
+        }
+    }
 }

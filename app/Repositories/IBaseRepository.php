@@ -14,4 +14,6 @@ interface IBaseRepository
     public function create(array $data): Model;
     public function update($id, array $data): bool;
     public function delete($id): bool;
+    public function search(string $keyword, array $fields, int $perPage = 15);
+
 }
