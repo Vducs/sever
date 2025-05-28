@@ -40,6 +40,14 @@ class MovieService extends BaseService
     public function createMovie(array $data): Model
     {
         return DB::transaction(function () use ($data) {
+            // Tạo slug từ title
+            $slugValue = Str::slug(strtolower($data['title']));
+
+            // Kiểm tra nếu slug đã tồn tại thì báo lỗi và dừng tạo
+            if (SlugModel::where('slug', $slugValue)->exists()) {
+                throw new \Exception('Phim đã tồn tại. Vui lòng kiểm tra lại.');
+            }
+
             // Chuẩn bị dữ liệu cho phim
             $movieData = [
                 'title' => $data['title'],
@@ -54,16 +62,6 @@ class MovieService extends BaseService
 
             // Tạo phim
             $movie = $this->repository->create($movieData);
-
-            // Tạo slug từ title
-            $slugValue = Str::slug(strtolower($data['title']));
-            $originalSlug = $slugValue;
-            $count = 1;
-
-            // Xử lý trùng lặp slug
-            while (SlugModel::where('slug', $slugValue)->exists()) {
-                $slugValue = $originalSlug . '-' . $count++;
-            }
 
             // Tạo bản ghi slug
             $movie->slug()->create([
@@ -80,6 +78,7 @@ class MovieService extends BaseService
         });
     }
 
+
     public function updateMovie(int $id, array $data): Model
     {
         return DB::transaction(function () use ($id, $data) {
@@ -91,9 +90,10 @@ class MovieService extends BaseService
 
             $oldTitle = $movie->title;
 
+            // Cập nhật dữ liệu phim (trừ title sẽ cập nhật riêng nếu cần)
             $movieData = [
                 'title' => $data['title'],
-                'description' => $data['description'] ?? null,
+                'description' => $data['description'] ?? $movie->description,
                 'category_id' => $data['category_id'] ?? $movie->category_id,
                 'image' => $data['image'] ?? $movie->image,
                 'rating' => $data['rating'] ?? $movie->rating,
@@ -104,10 +104,11 @@ class MovieService extends BaseService
 
             $movie->refresh();
 
+            // Nếu tiêu đề thay đổi, xử lý cập nhật slug
             if (strtolower($data['title']) !== strtolower($oldTitle)) {
                 $slugValue = Str::slug(strtolower($data['title']));
 
-                // Kiểm tra nếu slug đã tồn tại cho phim khác thì báo lỗi
+                // Kiểm tra slug có tồn tại và không phải của phim hiện tại
                 $slugExists = SlugModel::where('slug', $slugValue)
                     ->where('sluggable_id', '!=', $movie->id)
                     ->exists();
@@ -116,7 +117,7 @@ class MovieService extends BaseService
                     throw new \Exception('Phim với tiêu đề này đã tồn tại.');
                 }
 
-                // Nếu không trùng, cập nhật hoặc tạo slug
+                // Cập nhật hoặc tạo slug mới
                 if ($movie->slug) {
                     $movie->slug->update(['slug' => $slugValue]);
                 } else {
@@ -127,6 +128,7 @@ class MovieService extends BaseService
                 }
             }
 
+            // Cập nhật thể loại phim nếu có
             if (!empty($data['genres'])) {
                 $movie->genres()->sync($data['genres']);
             }
@@ -134,7 +136,6 @@ class MovieService extends BaseService
             return $this->formatData($movie->fresh(['category', 'genres', 'slug']));
         });
     }
-
 
 
     public function deleteMovie(int $id): bool
