@@ -4,9 +4,19 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\MovieController;
 use App\Http\Controllers\Api\V1\GenreController;
 use App\Http\Controllers\Api\V1\CategoryController;
+use App\Http\Controllers\Api\V1\AuthController;
 
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->namespace('App\Http\Controllers\Api\V1')->group(function () {
 
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+
+    Route::middleware('jwt.auth')->group(function () {
+        Route::get('profile', [AuthController::class, 'profile']);
+        Route::post('logout', [AuthController::class, 'logout']);
+    });
+    
+    
     // Nhóm Movie
     Route::prefix('movies')->group(function () {
         Route::get('/', [MovieController::class, 'index']);                   // Lấy danh sách phim
@@ -37,5 +47,4 @@ Route::prefix('v1')->group(function () {
         Route::put('/{id}', [CategoryController::class, 'update']);            // Cập nhật category
         Route::delete('/{id}', [CategoryController::class, 'destroy']);        // Xóa category
     });
-
 });

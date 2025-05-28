@@ -2,19 +2,32 @@
 
 namespace App\Models;
 
-class UserModel extends BaseModel
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use DateTimeInterface;
+
+class UserModel extends Authenticatable implements JWTSubject
 {
     protected $table = 'users';
 
     protected $fillable = ['name', 'email', 'password', 'role'];
 
-    public function movies()
+    protected $hidden = ['password'];
+
+    // Format dates to dd/mm/yy h/m/s
+    protected function serializeDate(DateTimeInterface $date)
     {
-        return $this->hasMany(MovieModel::class, 'created_by', 'id');
+        return $date->format('d/m/y H:i:s');
     }
 
-    public function isAdmin(): bool
+    // JWTSubject methods
+    public function getJWTIdentifier()
     {
-        return $this->role === 'admin';
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 }
