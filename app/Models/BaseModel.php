@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
+use DateTimeInterface;
 
 class BaseModel extends Model
 {
@@ -44,11 +45,17 @@ class BaseModel extends Model
         return $query->where('status', 0);
     }
 
+    //Định dạng time
+    protected function serializeDate(DateTimeInterface $date)
+    {
+        return $date->format('d/m/Y H:i:s');
+    }
+
     // Scope để lấy bản ghi đã phát hành
     public function scopePublished(Builder $query)
     {
         return $query->whereNotNull('published_at')
-                     ->where('published_at', '<=', now());
+            ->where('published_at', '<=', now());
     }
 
     // Scope để tìm kiếm
@@ -59,7 +66,7 @@ class BaseModel extends Model
         }
         return $query->where(function ($q) use ($keyword) {
             $q->where('title', 'LIKE', "%{$keyword}%")
-              ->orWhere('description', 'LIKE', "%{$keyword}%");
+                ->orWhere('description', 'LIKE', "%{$keyword}%");
         });
     }
 
@@ -82,10 +89,20 @@ class BaseModel extends Model
     }
 
     // Accessor cho created_at
-    public function getCreatedAtAttribute($value)
-    {
-        return $value ? date('d/m/Y H:i:s', strtotime($value)) : null;
-    }
+    // public function getCreatedAtAttribute($value)
+    // {
+    //     return $value ? date('d/m/Y H:i:s', strtotime($value)) : null;
+    // }
+
+    // public function getUpdatedAtAttribute($value)
+    // {
+    //     return $value ? date('d/m/Y H:i:s', strtotime($value)) : null;
+    // }
+
+    // public function getDeletedAtAttribute($value)
+    // {
+    //     return $value ? date('d/m/Y H:i:s', strtotime($value)) : null;
+    // }
 
     // Accessor cho image URL
     public function getImageUrlAttribute()

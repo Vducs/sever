@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SlugModel extends Model
+class SlugModel extends BaseModel
 {
     protected $table = 'slugs';
 

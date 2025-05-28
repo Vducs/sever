@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 
 class MovieModel extends BaseModel
