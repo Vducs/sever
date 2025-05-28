@@ -105,4 +105,17 @@ class MovieController extends BaseController
             return $this->exception($e);
         }
     }
+
+    public function search(Request $request)
+    {
+        $keyword = $request->query('query');
+
+        if (!$keyword) {
+            return response()->json(['message' => 'Vui lòng nhập từ khóa tìm kiếm'], 400);
+        }
+
+        $movies = $this->movieService->searchMovies($keyword);
+
+        return response()->json($movies);
+    }
 }

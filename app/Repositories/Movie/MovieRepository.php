@@ -38,6 +38,14 @@ class MovieRepository extends BaseRepository implements IMovieRepository
             ->first();
     }
 
+    public function searchByKeyword(string $keyword)
+    {
+        return $this->model
+            ->where('title', 'like', "%{$keyword}%")
+            ->orWhere('description', 'like', "%{$keyword}%")
+            ->get();
+    }
+
     public function create(array $data): MovieModel
     {
         return $this->model->create($data);

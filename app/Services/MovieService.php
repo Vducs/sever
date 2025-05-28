@@ -157,4 +157,9 @@ class MovieService extends BaseService
             return $this->repository->delete($id);
         });
     }
+
+    public function searchMovies(string $keyword)
+    {
+        return $this->repository->searchByKeyword($keyword);
+    }
 }
