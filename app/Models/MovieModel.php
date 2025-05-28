@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class MovieModel extends BaseModel
 {
-    protected $table = 'movies'; // Chỉ định rõ tên bảng
+    protected $table = 'movies';
 
     protected $fillable = ['title', 'description', 'category_id', 'image', 'views', 'rating', 'published_at', 'created_by'];
 
@@ -54,21 +54,5 @@ class MovieModel extends BaseModel
     public function incrementViews()
     {
         $this->increment('views');
-    }
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::saving(function ($model) {
-            $slugValue = Str::slug(strtolower($model->title));
-            $existingSlug = $model->slug;
-
-            if ($existingSlug) {
-                $existingSlug->update(['slug' => $slugValue]);
-            } else {
-                $model->slug()->create(['slug' => $slugValue]);
-            }
-        });
     }
 }

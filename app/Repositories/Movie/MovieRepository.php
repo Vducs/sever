@@ -6,6 +6,7 @@ use App\Models\MovieModel;
 use App\Repositories\BaseRepository;
 use App\Repositories\Movie\IMovieRepository;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class MovieRepository extends BaseRepository implements IMovieRepository
@@ -35,5 +36,10 @@ class MovieRepository extends BaseRepository implements IMovieRepository
                 $query->where('slug', $slug);
             })
             ->first();
+    }
+
+    public function create(array $data): MovieModel
+    {
+        return $this->model->create($data);
     }
 }

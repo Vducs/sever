@@ -42,4 +42,29 @@ class MovieController extends BaseController
             return $this->exception($e);
         }
     }
+
+    /**
+     * Tạo phim mới
+     * POST /api/v1/movies
+     */
+    public function store(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'category_id' => 'required|exists:categories,id',
+                'image' => 'nullable|string',
+                'rating' => 'nullable|numeric|min:0|max:10',
+                'published_at' => 'nullable|date',
+                'genres' => 'nullable|array',
+                'genres.*' => 'exists:genres,id',
+            ]);
+
+            $movie = $this->movieService->createMovie($validated);
+            return $this->success($movie, 'Phim được tạo thành công', 201);
+        } catch (\Throwable $e) {
+            return $this->exception($e);
+        }
+    }
 }

@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Model;
 
-class SlugModel extends BaseModel
+class SlugModel extends Model
 {
     protected $table = 'slugs';
 
-    protected $fillable = ['slug', 'sluggable_id', 'sluggable_type'];
+    protected $fillable = ['slug', 'status', 'sluggable_id', 'sluggable_type'];
 
-    public function sluggable(): MorphTo
+    public function sluggable()
     {
         return $this->morphTo();
     }
